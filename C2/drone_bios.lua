@@ -24,6 +24,6 @@ function net_get(address)
 
   return fr
 end
-log = status
+print = status
 
 load(net_get(url))()
