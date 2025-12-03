@@ -2,19 +2,19 @@ local navigation = component.navigation
 local robot = component.robot
 local computer = component.computer
 
-local function getEnergy()
+function actions.getEnergy()
     return {
         energy= computer.energy(),
         maxEnergy = computer.maxEnergy()
     }
 end 
 
-local function checkCrop()
+function actions.checkCrop()
     local rawResult = component.geolyzer.analyze(sides.down)
     return rawResult
 end
 
-local function getPosition()
+function actions.getPosition()
     local x, y, z =  navigation.getPosition()
     return {
         x=math.floor(x),
@@ -23,7 +23,7 @@ local function getPosition()
     }
 end
 
-local function moveFor(cnt, dir) 
+function actions.moveFor(cnt, dir) 
     local failureCount = 0
     while cnt > 0 do
         local status, reason = robot.move(dir)
@@ -100,7 +100,7 @@ local function _moveTo(x, y, z)
     return true, nil
 end
 
-local function moveTo(x,y,z)
+function actions.moveTo(x,y,z)
     local succ, res = _moveTo(x,y,z)
     return {
         status = succ,
@@ -108,11 +108,11 @@ local function moveTo(x,y,z)
     }
 end 
 
-local function chooseSlot(slot)
+function actions.chooseSlot(slot)
     robot.select(slot) 
 end
 
-local function attack()
+function actions.attack()
     local succ, res = drone.swing(0)
     return {
         status = succ,
@@ -120,7 +120,7 @@ local function attack()
     }
 end
 
-local function place()
+function actions.place()
     local succ, res = drone.use(0)
     return {
         status = succ,
@@ -128,7 +128,7 @@ local function place()
     }
 end
 
-local function redstone(val)
+function actions.redstone(val)
     return {
         status = true, 
         old = component.redstone.setOutput(0, val)
@@ -136,11 +136,6 @@ local function redstone(val)
 end
 
 return { 
-    moveTo = moveTo,
-    chooseSlot = chooseSlot,
-    attack = attack,
-    use = place,
-    redstone = redstone,
-    getPosition = getPosition,
-    getEnergy = getEnergy
+    status=true,
+    reason = "Successfully loaded"
 }
