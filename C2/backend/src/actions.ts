@@ -1,5 +1,6 @@
 import { drone, worker, storage, translocator, Robot } from "./robot"
-import type { CropCheckResult, Crop, Air, Block } from "./crop"
+import type { CropCheckResult, Crop, Block } from "./crop"
+import type { WorkArea } from "./workarea"
 
 const cropPos = {x: 64, y: 136, z: 14}
 const sugarCanePos = {x: 64, y: 136, z: 13}
@@ -82,9 +83,33 @@ export const blockExistsBelow = async (target: Robot): Promise<boolean> => {
     return name != "air"
 }
 
-export const checkCrop = async (target: Robot): Promise<Crop | Block | Air> => {
+export const checkCrop = async (target: Robot): Promise<Crop | Block> => {
     const result: CropCheckResult = await target.sendCommand("checkCrop")!!;
     return result.data;
+}
+
+export const moveWorker = async (target: Robot, x: number, y: number, z: number) => {
+    await target.sendCommand("moveTo", x, y, z);
+}
+
+export const moveDroneToEmpty = async (target: Robot, workarea: WorkArea): Promise<boolean> => {
+    // iterate and find empty.
+    await target.acquireMutex();
+
+    for (const pos of workarea.getIteratorOfBlockPositions()) {
+        const block = workarea.getBlock(pos.x, pos.z);
+        if (block.data?.name === "minecraft:air") {
+            await droneMove(pos.x, pos.y+1, pos.z);
+            // check if relally empty.
+            const crop = await checkCrop(target);
+            if (crop.name === "minecraft:air") {
+                target.releaseMutex();
+                return true;
+            }
+        }
+    }
+    target.releaseMutex();
+    return false;
 }
 
 
@@ -154,10 +179,10 @@ export const moveBlock = async (from: Robot, to: Robot): Promise<boolean> => {
     return true;
 }
 
-export const cleanupRobotInventory = async (robot: Robot) => {
-
+export const checkEnergy = async (target: Robot): Promise<{energy: number, maxEnergy: number}> => {
+    const {energy, maxEnergy} = await target?.sendCommand("getEnergy");
+    return {energy, maxEnergy};
 }
-
 
 export const swapBlock = async (from: Robot, to: Robot): Promise<boolean> => {
 
