@@ -1,6 +1,19 @@
-local navigation = component.navigation
-local robot = component.robot
-local computer = component.computer
+
+
+function comp(a)
+    local val = component.list(a)()
+    if val then
+        return component.proxy(val)
+    else
+        return nil
+    end
+end
+
+local navigation = comp "navigation"
+local robot = comp "robot"
+local computer = comp "computer"
+local geolyzer = comp "geolyzer"
+local redstone = comp "redstone"
 
 function actions.getEnergy()
     return {
@@ -10,7 +23,7 @@ function actions.getEnergy()
 end 
 
 function actions.checkCrop()
-    local rawResult = component.geolyzer.analyze(sides.down)
+    local rawResult = geolyzer.analyze(sides.down)
     return rawResult
 end
 
@@ -128,10 +141,10 @@ function actions.place()
     }
 end
 
-function actions.redstone(val)
+function actions.redstone(side, val)
     return {
         status = true, 
-        old = component.redstone.setOutput(0, val)
+        old = redstone.setOutput(side, val)
     }
 end
 

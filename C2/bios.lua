@@ -1,8 +1,12 @@
 local web = component.proxy(component.list("internet")())
-local drone = component.proxy(component.list("drone")())
-local status = drone.setStatusText
-
-local url = ""
+local status = nil
+if component.list("drone")() then
+  local drone = component.proxy(component.list("drone")())
+  status = drone.setStatusText
+else
+  status = function(text) end
+end
+local url = "https://gtnhoc.syeyoung.dev/main.lua"
 
 function net_get(address)
   local req = web.request(address)
@@ -15,7 +19,7 @@ function net_get(address)
     status "Processing"
     local chunk = req.read()
     if chunk then
-      str.gsub(chunk, "\r\n", "\n")
+      string.gsub(chunk, "\r\n", "\n")
       fr = fr .. chunk
     else
       break
