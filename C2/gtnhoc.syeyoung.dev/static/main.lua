@@ -44,7 +44,9 @@ local function listen(sock, commands)
   while true do
     local chunk, msg = sock.read()
     if chunk == nil then
-      print(chunk)
+      if (msg ~= nil) then
+        print(msg)
+      end
       return false
     end
     buffer = buffer .. chunk
