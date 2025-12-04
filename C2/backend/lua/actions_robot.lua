@@ -14,17 +14,22 @@ local robot = comp "robot"
 local computer = comp "computer"
 local geolyzer = comp "geolyzer"
 local redstone = comp "redstone"
+local inv_controller = comp("inventory_controller")
 
 function actions.getEnergy()
     return {
         energy= computer.energy(),
-        maxEnergy = computer.maxEnergy()
+        maxEnergy = computer.maxEnergy(),
+        status = true
     }
 end 
 
 function actions.checkCrop()
-    local rawResult = geolyzer.analyze(sides.down)
-    return rawResult
+    local rawResult = geolyzer.analyze(0)
+    return {
+        data = rawResult,
+        status = true
+    }
 end
 
 function actions.getPosition()
@@ -32,15 +37,16 @@ function actions.getPosition()
     return {
         x=math.floor(x),
         y=math.floor(y),
-        z=math.floor(z)
+        z=math.floor(z),
+        status = true
     }
 end
 
-function actions.moveFor(cnt, dir) 
+local function moveFor(cnt, dir) 
     local failureCount = 0
     while cnt > 0 do
         local status, reason = robot.move(dir)
-        if (status) then
+        if not status then
             failureCount = failureCount + 1
             if (failureCount > 10) then
                 return false, reason
@@ -54,14 +60,14 @@ function actions.moveFor(cnt, dir)
 end
 
 local function _moveTo(x, y, z)
-    local pos = getPosition()
+    local pos = actions.getPosition()
     local dX = x - pos.x
     local dZ = z - pos.z
     local dY = y - pos.y
 
     if dY ~= 0 then
         local succ, res = moveFor(math.abs(dY), dY > 0 and 1 or 0)
-        if ~succ then
+        if not succ then
             return succ, res
         end
     end
@@ -72,41 +78,43 @@ local function _moveTo(x, y, z)
         local movement = forwardOffset * dX
 
         local succ, res = moveFor(math.abs(dX), movement > 0 and 3 or 2)
-        if ~succ then
+        if not succ then
             return succ, res
-        end
-        if (dZ ~= 0) then
-            succ, res = robot.turnRight()
-            if ~succ then
-                return succ, res
-            end
-            facing =  facing == 4 and 2 or 3
         end
     end
     
-    if (facing == 2 or facing == 3) and dZ ~= 0 then
-        local forwardOffset = facing == 4 and -1 or 1
+    if dZ ~= 0 then
+        if not (facing == 2 or facing == 3) then
+            succ, res = robot.turn(true)
+            if not succ then
+                return succ, res
+            end
+            facing = facing == 4 and 2 or 3
+        end
+
+        local forwardOffset = facing == 2 and -1 or 1
         local movement = forwardOffset * dZ
 
-        local succ, res = oveFor(math.abs(dX), movement > 0 and 3 or 2)
-        if ~succ then
+        local succ, res = moveFor(math.abs(dZ), movement > 0 and 3 or 2)
+        if not succ then
             return succ, res
         end
-        if (dX ~= 0) then
-            succ, res = robot.turnRight()
-            if ~succ then
+    end
+    
+    if dX ~= 0 then
+        if not (facing == 4 or facing == 5) then
+            succ, res = robot.turn(true)
+            if not succ then
                 return succ, res
             end
             facing = facing == 3 and 4 or 5
         end
-    end
-    
-    if (facing == 4 or facing == 5) and dX ~= 0 then
+
         local forwardOffset = facing == 4 and -1 or 1
         local movement = forwardOffset * dX
 
         local succ, res = moveFor(math.abs(dX), movement > 0 and 3 or 2)
-        if ~succ then
+        if not succ then
             return succ, res
         end
     end 
@@ -121,12 +129,68 @@ function actions.moveTo(x,y,z)
     }
 end 
 
+function actions.move(dir)
+    robot.move(dir)
+    return {
+        status = true,
+        reason = nil
+    }
+end 
+
+function actions.count(slot)
+    return {
+        count = robot.count(slot),
+        status = true
+    }
+end 
+function actions.detect(side)
+    block, name = robot.detect(side)
+    return {
+        status = true,
+        canNotMove = block,
+        name = name
+    }
+end
+function actions.turnRight()
+    robot.turn(true)
+    return {
+        status = true,
+        reason = nil
+    }
+end 
+function actions.turnLeft()
+    robot.turn(false)
+    return {
+        status = true,
+        reason = nil
+    }
+end 
+
 function actions.chooseSlot(slot)
-    robot.select(slot) 
+    return {
+        status = true, 
+        old = robot.select(slot) 
+    }
 end
 
+function actions.swap()
+    inv_controller.equip()
+    return {
+        status = true,
+        reason = nil
+    }
+end 
+
 function actions.attack()
-    local succ, res = drone.swing(0)
+    local succ, res = robot.swing(0)
+    return {
+        status = succ,
+        reason = res
+    }
+end
+
+function actions.use(side)
+    local succ, res = robot.use(side)
     return {
         status = succ,
         reason = res
@@ -134,7 +198,7 @@ function actions.attack()
 end
 
 function actions.place()
-    local succ, res = drone.use(0)
+    local succ, res = robot.use(0)
     return {
         status = succ,
         reason = res
