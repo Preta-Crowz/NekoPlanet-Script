@@ -8,7 +8,7 @@ export type Block = {
 }
 
 export type Crop = {
-    "crop:cropname": string,
+    "crop:name": string,
     "crop:humidity": number,
     "crop:resistance": number,
     "crop:size": number,
@@ -22,7 +22,7 @@ export type Crop = {
     "crop:growth": number,
     "crop:hydration": number,
     "crop:weedex": number,
-    
+
     name: string,
     metadata: number,
     hardness: number,

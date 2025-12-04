@@ -38,7 +38,7 @@ export const giveDrawerToWorker = async (target: Robot, drawerPos: Position, tar
 
 export const plantDefaultCrop = async (target: Robot): Promise<boolean> => {
     const current = await checkCrop(target);
-    if (current.name === "IC2:blockCrop" && (current as Crop).cropname == undefined) {
+    if (current.name === "IC2:blockCrop" && (current as Crop)["crop:name"] == undefined) {
         return false;
     }
     if (!(current.name == "IC2:blockCrop" || current.name === "minecraft:air")) {
@@ -98,8 +98,9 @@ export const moveDroneToEmpty = async (target: Robot, workarea: WorkArea): Promi
 
     for (const pos of workarea.getIteratorOfBlockPositions()) {
         const block = workarea.getBlock(pos.x, pos.z);
+        console.log(block.data?.name)
         if (block.data?.name === "minecraft:air") {
-            await droneMove(pos.x, pos.y+1, pos.z);
+            await moveWorker(target, pos.x, pos.y, pos.z);
             // check if relally empty.
             const crop = await checkCrop(target);
             if (crop.name === "minecraft:air") {
@@ -121,7 +122,7 @@ const translocate = async (from: Robot) => {
     await translocator?.sendCommand("chooseSlot", 16)
     await drone?.sendCommand("put", 20, 1);
     await translocator?.sendCommand("swap");
-    await translocator?.sendCommand("place");
+    await translocator?.sendCommand("use",0 ,true);
     await translocator?.sendCommand("swap");
     await drone?.sendCommand("get", 20, 1);
 
@@ -129,9 +130,13 @@ const translocate = async (from: Robot) => {
     await from?.sendCommand("chooseSlot", 16)
     await drone?.sendCommand("put", 20, 1);
     await from?.sendCommand("swap");
-    await from?.sendCommand("place");
-    await translocator?.sendCommand("redstone", 0, 15);
+    if (await blockExistsBelow(from)) {
+        await from?.sendCommand("use",0 ,true);
+    } else {
+        await from?.sendCommand("use",0 ,false);
+    }
     await from?.sendCommand("swap");
+    await translocator?.sendCommand("redstone", 0, 15);
     await drone?.sendCommand("get", 20, 1);
     await translocator?.sendCommand("redstone", 0, 0);
 }
@@ -162,19 +167,29 @@ export const moveBlock = async (from: Robot, to: Robot): Promise<boolean> => {
     }
 
     await drone.acquireMutex();
+    await from.acquireMutex();
 
     await Promise.all([droneMove(transPos.x, transPos.y, transPos.z), bringTrans()]);
     await translocate(from);
     await droneMove(transPos.x, transPos.y, transPos.z);
-    await translocate(to);
+    from.releaseMutex();
 
-    const returnDrone = async () => {
-        await droneMove(64, 136, 17);
-        drone.releaseMutex();
+    const doRemaining = async () => {
+        await to.acquireMutex();
+        await translocate(to);
+        to.releaseMutex();
+
+        const returnDrone = async () => {
+            await droneMove(64, 136, 17);
+            drone.releaseMutex();
+        }
+
+        returnDrone()
+        returnTrans()
     }
 
-    returnDrone()
-    returnTrans()
+    doRemaining();
+
 
     return true;
 }
