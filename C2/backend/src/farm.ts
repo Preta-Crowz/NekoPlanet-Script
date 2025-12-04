@@ -9,7 +9,8 @@ const restPos = {x: 64, y: 137, z: 16}
 
 const isCrop = (data: Crop|Block): boolean => data.name == "IC2:blockCrop";
 const isAir = (data: Crop|Block): boolean => data.name == "minecraft:air";
-const isNotPlanted = (data: Crop|Block): boolean => (data as Crop)["crop:cropname"] == undefined;
+const isNotPlanted = (data: Crop|Block): boolean => (data as Crop)["crop:name"] == undefined;
+const isWeed = (data: Crop|Block): boolean => isCrop(data) && !isNotPlanted(data) && ((data as Crop)["crop:name"] == "weed" || ((data as Crop)["crop:name"] == 'venomilia' && (data as Crop)["crop:growth"] > 7));
 
 export const checkFarm = async (target: Robot, farm: WorkArea, eraseEmpty: boolean) => {
     for (const pos of farm.getIteratorOfBlockPositions()) {
@@ -17,6 +18,7 @@ export const checkFarm = async (target: Robot, farm: WorkArea, eraseEmpty: boole
         
         await moveWorker(target, pos.x, pos.y, pos.z);
         let data = await checkCrop(target);
+        console.log(data);
 
 
         let plantable = isCrop(data) ? true : (isAir(data) ? null : false);
@@ -29,10 +31,10 @@ export const checkFarm = async (target: Robot, farm: WorkArea, eraseEmpty: boole
 
             if (newCanPlant === null) {
                 // try planting.
-                const planted = await plantCrop(worker);
+                const planted = await plantCrop(target);
                 if (planted) {
                     newCanPlant = true;
-                    worker.sendCommand("attack")
+                    await target.sendCommand("attack")
                 } else {
                     newCanPlant = false;
                 }
@@ -41,7 +43,7 @@ export const checkFarm = async (target: Robot, farm: WorkArea, eraseEmpty: boole
         }
 
         if (eraseEmpty && isCrop(data) && isNotPlanted(data)) {
-            target.sendCommand("attack")
+            await target.sendCommand("attack")
             data = await checkCrop(target);
             previous.isDouble = false;
         }
@@ -56,7 +58,7 @@ export const checkFarm = async (target: Robot, farm: WorkArea, eraseEmpty: boole
                 previous.isDouble = false;
             } else if (isCrop(data)) {
                 // well.... just break and make it not double.
-                target.sendCommand("attack")
+                await target.sendCommand("attack")
                 previous.isDouble = false;
                 previous.data = null;
                 data = await checkCrop(target);
@@ -71,14 +73,45 @@ export const checkFarm = async (target: Robot, farm: WorkArea, eraseEmpty: boole
     saveAllDataToFile("farmdata.json");
 }
 
+const charge = async () => {
 
+        {
+            // move to rest pos and charge.
+            await moveWorker(worker, restPos.x, restPos.y, restPos.z);
+            // charge fully.
+            let {energy, maxEnergy} = await checkEnergy(worker);
+            while (energy < maxEnergy-1) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                const energyInfo = await checkEnergy(worker);
+                energy = energyInfo.energy;
+            }
+
+            // move worker up rest pos.
+            await moveWorker(worker, restPos.x, restPos.y + 1, restPos.z);
+        }
+        {
+            // charge storage.
+            await moveWorker(storage, restPos.x, restPos.y, restPos.z);
+            let {energy, maxEnergy}= (await checkEnergy(storage));
+            console.log(energy, maxEnergy);
+            while (energy < maxEnergy-1) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                const energyInfo = await checkEnergy(storage);
+                energy = energyInfo.energy;
+            }
+
+            await moveWorker(storage, 64, 137, 17);
+            console.log(await moveDroneToEmpty(storage, storageFarm));
+            await moveWorker(worker, restPos.x, restPos.y, restPos.z);
+        }
+}
 
 export const farmLogic = async () => {
     loadAllDataFromFile("farmdata.json");
 
-    checkFarm(worker, workingFarm, false);
-    checkFarm(storage, storageFarm, true);
+    // await Promise.all([checkFarm(worker, workingFarm, false), checkFarm(storage, storageFarm, true)]);;
 
+    await charge();
 
     while (true) {
         // iterate working farm
@@ -99,6 +132,13 @@ export const farmLogic = async () => {
 
             let double = (pos.x + pos.z) % 2 === 0;
 
+            if (isWeed(crop)) {
+                // remove weed
+                await worker.sendCommand("attack");
+                block.data = crop = await checkCrop(worker);
+                block.isDouble = false;
+            }
+            
             if (!isCrop(crop)) {
                 if (double) {
                     await plantCrop(worker, true);
@@ -110,6 +150,7 @@ export const farmLogic = async () => {
                     block.isDouble = false;
                 }
             }
+
 
             if (!double && isNotPlanted(crop)) {
                 await plantDefaultCrop(worker);
@@ -127,35 +168,8 @@ export const farmLogic = async () => {
             }
         }
 
-        {
-            // move to rest pos and charge.
-            await moveWorker(worker, restPos.x, restPos.y, restPos.z);
-            // charge fully.
-            let {energy, maxEnergy} = await checkEnergy(worker);
-            while (energy < maxEnergy) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                const energyInfo = await checkEnergy(worker);
-                energy = energyInfo.energy;
-            }
-
-            // move worker up rest pos.
-            await moveWorker(worker, restPos.x, restPos.y + 1, restPos.z);
-        }
-        {
-            // charge storage.
-            await moveWorker(storage, restPos.x, restPos.y, restPos.z);
-            let {energy, maxEnergy}= (await checkEnergy(storage));
-            while (energy < maxEnergy) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                const energyInfo = await checkEnergy(storage);
-                energy = energyInfo.energy;
-            }
-
-            await moveWorker(storage, 64, 137, 17);
-            moveDroneToEmpty(storage, storageFarm);
-            await moveWorker(worker, restPos.x, restPos.y, restPos.z);
-        }
 
         saveAllDataToFile("farmdata.json");
+        await charge();
     }
 }

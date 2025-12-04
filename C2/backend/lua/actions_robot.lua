@@ -11,7 +11,6 @@ end
 
 local navigation = comp "navigation"
 local robot = comp "robot"
-local computer = comp "computer"
 local geolyzer = comp "geolyzer"
 local redstone = comp "redstone"
 local inv_controller = comp("inventory_controller")
@@ -78,6 +77,7 @@ local function _moveTo(x, y, z)
         local movement = forwardOffset * dX
 
         local succ, res = moveFor(math.abs(dX), movement > 0 and 3 or 2)
+        dX = 0
         if not succ then
             return succ, res
         end
@@ -96,6 +96,7 @@ local function _moveTo(x, y, z)
         local movement = forwardOffset * dZ
 
         local succ, res = moveFor(math.abs(dZ), movement > 0 and 3 or 2)
+        dZ = 0
         if not succ then
             return succ, res
         end
@@ -189,8 +190,8 @@ function actions.attack()
     }
 end
 
-function actions.use(side)
-    local succ, res = robot.use(side)
+function actions.use(side, shift)
+    local succ, res = robot.use(side, 0, shift)
     return {
         status = succ,
         reason = res

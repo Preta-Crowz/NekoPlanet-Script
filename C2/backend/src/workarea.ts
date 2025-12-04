@@ -48,8 +48,8 @@ export class WorkArea {
 }
 
 
-const storageFarm = new WorkArea(65, 137, 8, 73, 16);
-const workingFarm = new WorkArea(65, 137, 18, 79, 31);
+const workingFarm = new WorkArea(65, 137, 8, 73, 16);
+const storageFarm = new WorkArea(65, 137, 18, 79, 31);
 
 export { storageFarm, workingFarm };
 
