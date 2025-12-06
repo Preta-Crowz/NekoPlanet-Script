@@ -4,6 +4,30 @@ import { robots } from "./robot.js";
 import { parse, stringify } from "@kilcekru/lua-table";
 import { farmLogic } from "./farm.js";
 
+import proc from 'node:process';
+import fs from "node:fs";
+import util from "node:util";
+
+const access = fs.createWriteStream("./node.access.log", { flags: "a" });
+const error = fs.createWriteStream("./node.error.log", { flags: "a" });
+util.inspect.defaultOptions.colors = true;
+
+function format(...args: any[]): string {
+  return util.format(...args) + "\n";
+}
+
+console.log = (...args) => {
+  const msg = format(...args);
+  access.write(msg);
+  process.stdout.write(msg);
+};
+
+console.error = (...args) => {
+  const msg = format(...args);
+  error.write(msg);
+  process.stderr.write(msg);
+};
+
 const options = {
 	emptyTables: "object" as const, // Parse empty tables as object or array
 	booleanKeys: false, // Allow boolean keys in tables
@@ -40,7 +64,6 @@ export class Session extends EventEmitter {
                 this.buf = this.buf.slice(5 + len);
                 if (this.pending) {
                     const parsed = parse(payload, options);
-                    console.log(parsed);
                     this.pending(parsed);
                     this.pending = undefined;
                 }
@@ -52,7 +75,6 @@ export class Session extends EventEmitter {
 
     sendCommand = (cmd: string, ...args: any[]): Promise<any> => {
         const payloadCmd = {"cmd": cmd, "args": args};
-        console.log(payloadCmd);
         const payload = stringify(payloadCmd);
         const header = (payload.length+"").padStart(5, "0")
         return new Promise((resolve, reject) => {
@@ -98,5 +120,7 @@ server.on('error', (err) => { // 네트워크 에러 처리
 server.listen(23587, "0.0.0.0", () => {
     console.log('listen', server.address());
 });
+
+
 
 await farmLogic();

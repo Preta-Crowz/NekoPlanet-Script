@@ -12,6 +12,8 @@ export class Robot {
     resolve?: () => void;
     connected: boolean;
     mutex: Mutex = new Mutex();
+    currentTool = -1;     
+    currentChosenSlot = -1;
 
     constructor(name: string, file: string) {
         this.name = name;
@@ -23,7 +25,10 @@ export class Robot {
 
     sendCommand = async (cmd: string, ...args: any[]): Promise<any> => {
         await this.promise;
-        return await this.session?.sendCommand(cmd, ...args);
+        console.log(`[${Date.now()}] [${this.name.padEnd(15)}] REQ `, {"cmd": cmd, "args": args});
+        const resp = await this.session?.sendCommand(cmd, ...args);
+        console.log(`[${Date.now()}] [${this.name.padEnd(15)}] RESP `, resp);
+        return resp;
     }
 
     acquireMutex = async () => {
@@ -32,6 +37,10 @@ export class Robot {
 
     releaseMutex = () => {
         this.mutex.release();
+    }
+
+    hasLock = (): boolean => {
+        return this.mutex.isLocked();
     }
 
     attachSession = async (socket: Session) => {
@@ -46,6 +55,33 @@ export class Robot {
 
         if (this.resolve) this.resolve();
     }
+
+
+    chooseSlot = async (slot: number) => {
+        if (this.currentChosenSlot !== slot) {
+            await this.sendCommand("chooseSlot", slot);
+            this.currentChosenSlot = slot;
+        }
+    }
+
+    useTool = async (toolSlot: number) => {
+        if (this.currentTool !== toolSlot) {
+            await this.returnTool();
+            await this.chooseSlot(toolSlot);
+            await this.sendCommand("swap");
+            this.currentTool = toolSlot;
+        }
+    }
+
+    returnTool = async () => {
+        if (this.currentTool !== -1) {
+            await this.chooseSlot(this.currentTool);
+            await this.sendCommand("swap");
+            this.currentTool = -1;
+        }
+    }
+    
+
 }
 
 

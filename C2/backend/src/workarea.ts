@@ -1,7 +1,7 @@
 import type { Block, Crop } from "./crop";
 import fs from 'fs'
 
-type BlockData = {
+export type BlockData = {
     data: (Block | Crop | null);
     canPlant: boolean | null; 
     lastChecked: number;
@@ -38,9 +38,17 @@ export class WorkArea {
 
     getIteratorOfBlockPositions(): {x: number, y: number, z: number}[] {
         const positions: {x: number, y: number, z: number}[] = [];
-        for (let x = this.minX; x <= this.maxX; x++) {
-            for (let z = this.minZ; z <= this.maxZ; z++) {
-                positions.push({x: x, y: this.y, z: z});
+        // zigzag by rows: go left->right on one z, then right->left on next z, etc.
+        for (let z = this.minZ; z <= this.maxZ; z++) {
+            const rowIndex = z - this.minZ;
+            if (rowIndex % 2 === 0) {
+                for (let x = this.minX; x <= this.maxX; x++) {
+                    positions.push({ x, y: this.y, z });
+                }
+            } else {
+                for (let x = this.maxX; x >= this.minX; x--) {
+                    positions.push({ x, y: this.y, z });
+                }
             }
         }
         return positions;
