@@ -42,12 +42,12 @@ function actions.moveTo(tx, ty, tz)
     local cx,cy,cz = navigation.getPosition()
     drone.move(tx-cx, ty-cy, tz-cz)
 
-    while drone.getOffset() > 0.05 do
+    while drone.getOffset() > 0.5 do
         computer.pullSignal(0.1)
     end
 
     return {
-        status= drone.getOffset() < 0.01,
+        status= drone.getOffset() < 0.5,
         reason= nil
     }
 end

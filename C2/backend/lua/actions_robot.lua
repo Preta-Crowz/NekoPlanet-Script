@@ -144,6 +144,15 @@ function actions.count(slot)
         status = true
     }
 end 
+
+function actions.dropBelow(slot)
+    robot.select(slot)
+    local res = robot.drop(0, 64)
+    return {
+        status = res
+    }
+end
+
 function actions.detect(side)
     block, name = robot.detect(side)
     return {
