@@ -1,5 +1,5 @@
 import { drone, Robot, robots, storage, translocator, worker } from "./robot"
-import { attackAndTakeCareOfInventory, blockExistsBelow, checkCrop, checkEnergy, moveBlock, moveDroneToEmpty, moveWorker, plantCrop, plantDefaultCrop, plantDoubleCrop, prepareTranslocator, returnTranslocator, swapBlock, workingFarmMove } from "./actions"
+import { attackAndTakeCareOfInventory, blockExistsBelow, checkCrop, checkEnergy, moveBlock, moveWorker, plantCrop, plantDefaultCrop, plantDoubleCrop, prepareTranslocator, returnTranslocator, swapBlock, workingFarmMove } from "./actions"
 import { loadAllDataFromFile, saveAllDataToFile, storageFarm, WorkArea, type BlockData } from "./workarea";
 
 import { workingFarm } from "./workarea";
@@ -15,6 +15,59 @@ const isWeed = (data: Crop|Block): boolean => isCrop(data) && !isNotPlanted(data
     || ((data as Crop)["crop:name"] == 'Grass')
     || ((data as Crop)["crop:name"] == 'venomilia' && (data as Crop)["crop:growth"] > 7)
     || ((data as Crop)["crop:growth"] > 23));
+
+
+const cleanupFarming = async () => {
+    for (const pos of workingFarm.getIteratorOfBlockPositions()) {
+        const block = workingFarm.getBlock(pos.x, pos.z);
+        await moveWorker(worker, pos.x, workingFarm.y, pos.z);
+        const crop = await checkCrop(worker);
+        if (isCrop(crop) && isNotPlanted(crop) || isWeed(crop)) {
+            await attackAndTakeCareOfInventory(worker);
+            block.canPlant = true;
+            block.isDouble = false;
+            block.data = await checkCrop(worker);
+        }
+    };
+}
+
+const moveDroneToEmpty = async (target: Robot, workarea: WorkArea[]): Promise<boolean> => {
+    // iterate and find empty.
+    await target.acquireMutex();
+
+    let {y: wy} = await target?.sendCommand("getPosition");
+
+    for (const area of workarea) {
+        for (const pos of area.getIteratorOfBlockPositions()) {
+            const block = area.getBlock(pos.x, pos.z);
+            if (block.data?.name === "minecraft:air" && block.canPlant) {
+                if (pos.y !== wy) {
+                    await moveWorker(target, 64, wy, 18);
+                    await moveWorker(target, 64, pos.y, 18);
+                    wy = pos.y;
+                }
+
+                await moveWorker(target, pos.x, pos.y, pos.z);
+                // check if relally empty.
+                const crop = await checkCrop(target);
+                if (crop.name === "minecraft:air") {
+                    target.releaseMutex();
+                    return true;
+                } else {
+                    block.data = crop;
+                    block.lastChecked = new Date().getTime();
+                }
+            }
+        }
+    }
+    target.releaseMutex();
+
+    await cleanupFarming();
+
+    saveAllDataToFile("farmdata.json");
+    process.exit(1);
+    return false;
+}
 
 export const checkFarm = async (target: Robot, farm: WorkArea, eraseEmpty: boolean) => {
     for (const pos of farm.getIteratorOfBlockPositions()) {
@@ -96,6 +149,9 @@ const charge = async () => {
         }
         {
             // charge storage.
+            
+            let {y: wy} = await storage?.sendCommand("getPosition");
+            await moveWorker(storage, 64, wy, 18);
             await moveWorker(storage, restPos.x, restPos.y, restPos.z);
             let {energy, maxEnergy}= (await checkEnergy(storage));
             console.log(energy, maxEnergy);
@@ -160,6 +216,11 @@ const strategyTier: DecisionFunction = async (x: number, z: number, double: bool
                 minTier = t;
                 minTierPos = {x: pos.x, z: pos.z};
             };
+        } else if (b.data?.name == "minecraft:air" && b.canPlant) {
+            // empty spot found, prefer this.
+            minTier = -1;
+            minTierPos = {x: pos.x, z: pos.z};
+            break; 
         }
     }
     console.log("Min tier crop at ", minTierPos, " tier ", minTier);
@@ -175,10 +236,12 @@ const strategyTier: DecisionFunction = async (x: number, z: number, double: bool
         console.log("Seeing Low Tier Crop");
         // check if crop exists in storage farm. with count.
             let count = 0;
-            for (const pos of storageFarm.getIteratorOfBlockPositions()) {
-                const b = storageFarm.getBlock(pos.x, pos.z);
-                if (isCrop(b.data!!) && !isNotPlanted(b.data!!) && (b.data as Crop)["crop:name"] == (crop as Crop)["crop:name"]) {
-                    count++;    
+            for (const area of storageFarm) {
+                for (const pos of area.getIteratorOfBlockPositions()) {
+                    const b = area.getBlock(pos.x, pos.z);
+                    if (isCrop(b.data!!) && !isNotPlanted(b.data!!) && (b.data as Crop)["crop:name"] == (crop as Crop)["crop:name"]) {
+                        count++;    
+                    }
                 }
             }
             // store.
@@ -208,10 +271,12 @@ const strategyTier: DecisionFunction = async (x: number, z: number, double: bool
         console.log("Drone doesn't have lock! Checking storage farm count");
         // check if minTierPos crop exists in storage farm. with count.
         let count = 0;
-        for (const pos of storageFarm.getIteratorOfBlockPositions()) {
-            const b = storageFarm.getBlock(pos.x, pos.z);
-            if (isCrop(b.data!!) && !isNotPlanted(b.data!!) && (b.data as Crop)["crop:name"] == (workingFarm.getBlock(minTierPos.x, minTierPos.z).data as Crop)["crop:name"]) {
-                count++;    
+        for (const area of storageFarm) {
+            for (const pos of area.getIteratorOfBlockPositions()) {
+                const b = area.getBlock(pos.x, pos.z);
+                if (isCrop(b.data!!) && !isNotPlanted(b.data!!) && (b.data as Crop)["crop:name"] == (workingFarm.getBlock(minTierPos.x, minTierPos.z).data as Crop)["crop:name"]) {
+                    count++;    
+                }
             }
         }
         console.log("Count: "+count);
@@ -249,10 +314,12 @@ const strategyStat = (cropName: string): DecisionFunction => {
         if ((crop as Crop)["crop:name"] !== cropName) {
             // check if crop exists in storage farm. with count.
             let count = 0;
-            for (const pos of storageFarm.getIteratorOfBlockPositions()) {
-                const b = storageFarm.getBlock(pos.x, pos.z);
-                if (isCrop(b.data!!) && !isNotPlanted(b.data!!) && (b.data as Crop)["crop:name"] == (crop as Crop)["crop:name"]) {
-                    count++;    
+            for (const area of storageFarm) {
+                for (const pos of area.getIteratorOfBlockPositions()) {
+                    const b = area.getBlock(pos.x, pos.z);
+                    if (isCrop(b.data!!) && !isNotPlanted(b.data!!) && (b.data as Crop)["crop:name"] == (crop as Crop)["crop:name"]) {
+                        count++;    
+                    }
                 }
             }
             // store.
@@ -284,6 +351,11 @@ const strategyStat = (cropName: string): DecisionFunction => {
                     minStat = s;
                     minStatPos = {x: pos.x, z: pos.z};
                 };
+            } else if (b.data?.name == "minecraft:air" && b.canPlant) {
+                // empty spot found, prefer this.
+                minStat = -1;
+                minStatPos = {x: pos.x, z: pos.z};
+                break; 
             }
         }
 
@@ -332,6 +404,7 @@ export const farmLogic = async () => {
         await prepareTranslocator();
         // iterate working farm
         for (const pos of workingFarm.getIteratorOfBlockPositions()) {
+            saveAllDataToFile("farmdata.json");
             const block = workingFarm.getBlock(pos.x, pos.z);
             await moveWorker(worker, pos.x, pos.y, pos.z);
             
@@ -353,6 +426,7 @@ export const farmLogic = async () => {
                 if ((crop as Crop)["crop:name"] == "weed") {
                     // use shovel
                     await worker.useTool(15);
+                    await worker.chooseSlot(1);
                     await worker.sendCommand("use", 0, false);
                     for (let i = 1; i <= 12; i++) {
                         const {count} = await worker.sendCommand("count", i);
@@ -402,8 +476,8 @@ export const farmLogic = async () => {
             }
         }
 
-
         saveAllDataToFile("farmdata.json");
+
         await returnTranslocator();
         await charge();
     }
