@@ -3,6 +3,7 @@ import { EventEmitter } from 'node:events';
 import { robots } from "./robot.js";
 import { parse, stringify } from "@kilcekru/lua-table";
 import { farmLogic } from "./farm.js";
+import { startApi } from "./api.js";
 
 import proc from 'node:process';
 import fs from "node:fs";
@@ -121,6 +122,11 @@ server.listen(23587, "0.0.0.0", () => {
     console.log('listen', server.address());
 });
 
-
+// start a small HTTP API exposing farm data for debugging/monitoring
+try {
+    startApi(5174);
+} catch (e) {
+    console.log('Failed to start API', e);
+}
 
 await farmLogic();

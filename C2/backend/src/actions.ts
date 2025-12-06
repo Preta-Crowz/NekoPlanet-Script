@@ -8,8 +8,9 @@ const transPos = {x: 65, y: 138, z: 17}
 
 export const droneMove = async (x: number, y: number, z: number) => {
     const {x: dx,y: dy,z: dz} = await drone?.sendCommand("getPosition");
-    await drone?.sendCommand("moveTo", dx, 138.5, dz);
-    await drone?.sendCommand("moveTo", x+0.5, 138.5, z+0.5);
+    const maxY = Math.max(dy-0.5, y);
+    await drone?.sendCommand("moveTo", dx, maxY+0.5, dz);
+    await drone?.sendCommand("moveTo", x+0.5, maxY+0.5, z+0.5);
     await drone?.sendCommand("moveTo", x+0.5, y+0.5, z+0.5);
 }
 
@@ -119,28 +120,6 @@ export const moveWorker = async (target: Robot, x: number, y: number, z: number)
     await target.sendCommand("moveTo", x, y, z);
 }
 
-export const moveDroneToEmpty = async (target: Robot, workarea: WorkArea): Promise<boolean> => {
-    // iterate and find empty.
-    await target.acquireMutex();
-
-    for (const pos of workarea.getIteratorOfBlockPositions()) {
-        const block = workarea.getBlock(pos.x, pos.z);
-        if (block.data?.name === "minecraft:air" && block.canPlant) {
-            await moveWorker(target, pos.x, pos.y, pos.z);
-            // check if relally empty.
-            const crop = await checkCrop(target);
-            if (crop.name === "minecraft:air") {
-                target.releaseMutex();
-                return true;
-            } else {
-                block.data = crop;
-                block.lastChecked = new Date().getTime();
-            }
-        }
-    }
-    target.releaseMutex();
-    return false;
-}
 
 export  const attackAndTakeCareOfInventory = async (target: Robot) => {
     await target.useTool(15);
@@ -165,6 +144,9 @@ const translocate = async (from: Robot): Promise<() => Promise<void>> => {
     }
     await Promise.all([stage1(), from.returnTool()]);
 
+    if (await getNumberOfItems(from, 16) != 0) {
+        await from.sendCommand("dropBelow", 16)
+    }
     await drone?.sendCommand("put", 20, 1);
     await from.useTool(16);
     if (await blockExistsBelow(from)) {
@@ -204,7 +186,6 @@ export const prepareTranslocator = async () => {
 export const returnTranslocator = async () => {
     await translocator.acquireMutex();
     await translocator?.sendCommand("move", 2)
-    await translocator?.sendCommand("chooseSlot", 1)
     await translocator?.sendCommand("move", 2)
     await translocator?.sendCommand("turnRight")
     await translocator?.sendCommand("move",2)
