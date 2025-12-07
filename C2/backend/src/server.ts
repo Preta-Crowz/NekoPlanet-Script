@@ -8,6 +8,7 @@ import { startApi } from "./api.js";
 import proc from 'node:process';
 import fs from "node:fs";
 import util from "node:util";
+import { loadAllDataFromFile } from "./workarea.js";
 
 const access = fs.createWriteStream("./node.access.log", { flags: "a" });
 const error = fs.createWriteStream("./node.error.log", { flags: "a" });
@@ -74,7 +75,8 @@ export class Session extends EventEmitter {
         }
     }
 
-    sendCommand = (cmd: string, ...args: any[]): Promise<any> => {
+    sendCommand = async (cmd: string, ...args: any[]): Promise<any> => {
+        if (this.pending !== undefined) await this.pending;
         const payloadCmd = {"cmd": cmd, "args": args};
         const payload = stringify(payloadCmd);
         const header = (payload.length+"").padStart(5, "0")
@@ -128,5 +130,5 @@ try {
 } catch (e) {
     console.log('Failed to start API', e);
 }
-
+loadAllDataFromFile("farmdata.json");
 await farmLogic();

@@ -2,6 +2,7 @@
 <!-- Write 9x9 grid to show crops with flexb ox-->
 <script>
     import Crop from "$lib/Crop.svelte";
+    import StoredCrops from "$lib/StoredCrops.svelte";
     import TileDetails from "$lib/TileDetails.svelte";
 
     export let data;
@@ -10,9 +11,19 @@
 
     const SIZE = 9;
     const TOTAL = SIZE * SIZE;
-    console.log(data.farms)
-    console.log(data.farms.workingFarm)
     let tiles = data.farms.workingFarm.crops;
+    let storedCrops = data.farms.storageFarm;
+    console.log(data.farms.storageFarm[0])
+
+    // refresh tiles, stored Crops every 5 second
+    setInterval(() => {
+        fetch('https://gtnhoc.syeyoung.dev/api/farms')
+            .then(res => res.json())
+            .then(farmsData => {
+                tiles = farmsData.workingFarm.crops;
+                storedCrops = farmsData.storageFarm;
+            });
+    }, 5000);
 
 </script>
 
@@ -29,12 +40,16 @@
                     </div>
                 {/each}
             </div>
+
+            <p>Min Tier: {Math.min(...tiles.filter((t, i) => (((i % SIZE) + Math.floor(i / SIZE)) % 2) === 0 && t.data["crop:tier"]).map(t => t.data["crop:tier"]))}</p>
+            <p>Max Tier: {Math.max(...tiles.filter((t, i) => (((i % SIZE) + Math.floor(i / SIZE)) % 2) === 0 && t.data["crop:tier"]).map(t => t.data["crop:tier"]))}</p>
         </div>
         <div class="column">
             <TileDetails {details} />
         </div>
         <div class="column">
             <h1>Stored Crops</h1>
+            <StoredCrops farms={storedCrops}/>
         </div>
     </div>
 </div>
@@ -47,7 +62,7 @@
         flex-direction: column;
         align-items: center;
         padding: 1rem;
-        flex: 1;
+        flex-grow: 1;
         width: 100%;
         height: 100%;
     }
@@ -66,8 +81,9 @@
 
     .content {
         display: flex;
-        flex: 1;
+        flex-grow: 1;
         width: 100%;
+        height: 100%;
     }
 
     .column {
@@ -77,5 +93,8 @@
         align-items: first;
         border: 1px solid #ccc;
         padding: 1rem;
+        flex-grow: 1;
+        height: 100%;
+        max-height: 100%;
     }
 </style>

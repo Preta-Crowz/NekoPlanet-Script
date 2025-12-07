@@ -6,12 +6,14 @@ const cropPos = {x: 64, y: 136, z: 14}
 const sugarCanePos = {x: 64, y: 136, z: 13}
 const transPos = {x: 65, y: 138, z: 17}
 
+
+
 export const droneMove = async (x: number, y: number, z: number) => {
-    const {x: dx,y: dy,z: dz} = await drone?.sendCommand("getPosition");
+    const {x: dx,y: dy,z: dz} = await drone?.sendCommandWithRetry("getPosition");
     const maxY = Math.max(dy-0.5, y);
-    await drone?.sendCommand("moveTo", dx, maxY+0.5, dz);
-    await drone?.sendCommand("moveTo", x+0.5, maxY+0.5, z+0.5);
-    await drone?.sendCommand("moveTo", x+0.5, y+0.5, z+0.5);
+    await drone?.sendCommandWithRetry("moveTo", Math.round(dx-0.5)+0.5, maxY+0.5, Math.round(dz-0.5)+0.5);
+    await drone?.sendCommandWithRetry("moveTo", x+0.5, maxY+0.5, z+0.5);
+    await drone?.sendCommandWithRetry("moveTo", x+0.5, y+0.5, z+0.5);
 }
 
 type Position = {x: number, y:number, z: number}
@@ -19,13 +21,13 @@ type Position = {x: number, y:number, z: number}
 
 
 export const giveDrawerToWorker = async (target: Robot, drawerPos: Position, targetSlot: number, count: number) => {
-    const {x: wx,y: wy,z: wz} = await target?.sendCommand("getPosition");
+    const {x: wx,y: wy,z: wz} = await target?.sendCommandWithRetry("getPosition");
     
     await drone.acquireMutex();
     
     await droneMove(drawerPos.x, drawerPos.y+1, drawerPos.z);
-    await drone?.sendCommand("chooseSlot", 2);
-    const {status} = await drone?.sendCommand("get", 2, count);
+    await drone?.sendCommandWithRetry("chooseSlot", 2);
+    const {status} = await drone?.sendCommandWithRetry("get", 2, count);
     if (status == 0) {
         (async () => { 
             await droneMove(63.5, 136, 17.5);
@@ -34,7 +36,7 @@ export const giveDrawerToWorker = async (target: Robot, drawerPos: Position, tar
         return;
     }
     await droneMove(wx, wy+1, wz);
-    await drone?.sendCommand("put", targetSlot + 4, count);
+    await drone?.sendCommandWithRetry("put", targetSlot + 4, count);
 
     (async () => { 
         await droneMove(63.5, 136, 17.5);
@@ -71,7 +73,7 @@ export const plantDefaultCrop = async (target: Robot, failIfNotEnoughAndDroneLoc
 }
 
 const getNumberOfItems = async (target: Robot, slot: number): Promise<number> => {
-    const {count} =  await target?.sendCommand("count", slot);
+    const {count} =  await target?.sendCommandWithRetry("count", slot);
     return count;
 }
 
@@ -107,28 +109,28 @@ export const plantDoubleCrop = async (target: Robot, failIfNotEnoughAndDroneLock
 
 
 export const blockExistsBelow = async (target: Robot): Promise<boolean> => {
-    const {canNotMove, name} =  await target?.sendCommand("detect", 0);
+    const {canNotMove, name} =  await target?.sendCommandWithRetry("detect", 0);
     return name != "air"
 }
 
 export const checkCrop = async (target: Robot): Promise<Crop | Block> => {
-    const result: CropCheckResult = await target.sendCommand("checkCrop")!!;
+    const result: CropCheckResult = await target.sendCommandWithRetry("checkCrop")!!;
     return result.data;
 }
 
 export const moveWorker = async (target: Robot, x: number, y: number, z: number) => {
-    await target.sendCommand("moveTo", x, y, z);
+    await target.sendCommandWithRetry("moveTo", x, y, z);
 }
 
 
 export  const attackAndTakeCareOfInventory = async (target: Robot) => {
     await target.useTool(15);
     await target.chooseSlot(1)
-    await target.sendCommand("attack");
+    await target.sendCommandWithRetry("attack");
     for (let i = 1; i <= 12; i++) {
-        const {count} = await target.sendCommand("count", i);
+        const {count} = await target.sendCommandWithRetry("count", i);
         if (count > 0) {
-            await target.sendCommand("dropBelow", i)
+            await target.sendCommandWithRetry("dropBelow", i)
         }
     }
 }
@@ -136,18 +138,18 @@ export  const attackAndTakeCareOfInventory = async (target: Robot) => {
 
 // assume drone at translocator.
 const translocate = async (from: Robot): Promise<() => Promise<void>> => {
-    const {x: wx,y: wy,z: wz} = await from?.sendCommand("getPosition");
+    const {x: wx,y: wy,z: wz} = await from?.sendCommandWithRetry("getPosition");
 
     const stage1 = async () => {
-        await drone?.sendCommand("chooseSlot", 1);
+        await drone?.sendCommandWithRetry("chooseSlot", 1);
         await droneMove(wx, wy+1, wz);
     }
     await Promise.all([stage1(), from.returnTool()]);
 
     if (await getNumberOfItems(from, 16) != 0) {
-        await from.sendCommand("dropBelow", 16)
+        await from.sendCommandWithRetry("dropBelow", 16)
     }
-    await drone?.sendCommand("put", 20, 1);
+    await drone?.sendCommandWithRetry("put", 20, 1);
     await from.useTool(16);
     if (await blockExistsBelow(from)) {
         await from?.sendCommand("use",0 ,true);
@@ -156,40 +158,40 @@ const translocate = async (from: Robot): Promise<() => Promise<void>> => {
     }
     await from.returnTool();
     await Promise.all([
-        drone?.sendCommand("get", 20, 1),
-        translocator?.sendCommand("redstone", 0, 15)
+        drone?.sendCommandWithRetry("get", 20, 1),
+        translocator?.sendCommandWithRetry("redstone", 0, 15)
     ]);
 
     const cleanup = async () => {
         await Promise.all([
-            translocator?.sendCommand("redstone", 0, 0),
+            translocator?.sendCommandWithRetry("redstone", 0, 0),
             droneMove(transPos.x, transPos.y, transPos.z)
         ]);
-        await drone?.sendCommand("put", 20, 1);
+        await drone?.sendCommandWithRetry("put", 20, 1);
         await translocator?.useTool(16);
         await translocator?.sendCommand("use", 0, true);
         await translocator?.returnTool();
-        await drone?.sendCommand("get", 20, 1);
+        await drone?.sendCommandWithRetry("get", 20, 1);
     }
     return cleanup;
 }
 
 
 export const prepareTranslocator = async () => {
-    await translocator?.sendCommand("move", 1)
-    await translocator?.sendCommand("move", 3)
-    await translocator?.sendCommand("turnLeft")
-    await translocator?.sendCommand("move", 3)
-    await translocator?.sendCommand("move", 3)
+    await translocator?.sendCommandWithRetry("move", 1)
+    await translocator?.sendCommandWithRetry("move", 3)
+    await translocator?.sendCommandWithRetry("turnLeft")
+    await translocator?.sendCommandWithRetry("move", 3)
+    await translocator?.sendCommandWithRetry("move", 3)
 }
 
 export const returnTranslocator = async () => {
     await translocator.acquireMutex();
-    await translocator?.sendCommand("move", 2)
-    await translocator?.sendCommand("move", 2)
-    await translocator?.sendCommand("turnRight")
-    await translocator?.sendCommand("move",2)
-    await translocator?.sendCommand("move",0)
+    await translocator?.sendCommandWithRetry("move", 2)
+    await translocator?.sendCommandWithRetry("move", 2)
+    await translocator?.sendCommandWithRetry("turnRight")
+    await translocator?.sendCommandWithRetry("move",2)
+    await translocator?.sendCommandWithRetry("move",0)
     translocator.releaseMutex();
 }
 
@@ -233,16 +235,17 @@ export const workingFarmMove = async (from: Robot, x: number, y: number, z: numb
     return true;
 }
 
-export const moveBlock = async (from: Robot, to: Robot): Promise<boolean> => {
+export const moveBlock = async (from: Robot, to: Robot, b4: () => Promise<any> = () => Promise.resolve()): Promise<boolean> => {
     await drone.acquireMutex();
     await from.acquireMutex();
-        await translocator.acquireMutex();
+    await translocator.acquireMutex();
 
     const cleanup = await translocate(from);
     from.releaseMutex();
 
     const doRemaining = async () => {
         await cleanup();
+        await b4();
         await to.acquireMutex();
         const cleanup2 = await translocate(to);
         to.releaseMutex();
@@ -264,11 +267,11 @@ export const moveBlock = async (from: Robot, to: Robot): Promise<boolean> => {
 }
 
 export const checkEnergy = async (target: Robot): Promise<{energy: number, maxEnergy: number}> => {
-    const {energy, maxEnergy} = await target?.sendCommand("getEnergy");
+    const {energy, maxEnergy} = await target?.sendCommandWithRetry("getEnergy");
     return {energy, maxEnergy};
 }
 
-export const swapBlock = async (from: Robot, to: Robot): Promise<boolean> => {
+export const swapBlock = async (from: Robot, to: Robot, b4: () => Promise<any> = () => Promise.resolve()): Promise<boolean> => {
 
 
     await translocator.acquireMutex();
@@ -276,6 +279,7 @@ export const swapBlock = async (from: Robot, to: Robot): Promise<boolean> => {
     await from.acquireMutex();
     
     await (await translocate(from))();
+    await b4();
     await to.acquireMutex();
     await (await translocate(to))();
     to.releaseMutex();
