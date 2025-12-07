@@ -1,5 +1,6 @@
 import type { Block, Crop } from "./crop";
 import fs from 'fs'
+import { storage } from "./robot";
 
 export type BlockData = {
     data: (Block | Crop | null);
@@ -65,6 +66,7 @@ export class WorkArea {
 export const workingFarm = new WorkArea(65, 137, 8, 73, 16);
 const storageFarm1 = new WorkArea(65, 137, 18, 79, 31);
 const storageFarm2 = new WorkArea(65, 144, 18, 79, 31);
+const storageFarm3 = new WorkArea(65, 151, 18, 79, 31);
 
 export let storageFarm: WorkArea[] = [storageFarm1, storageFarm2]
 
@@ -81,6 +83,7 @@ export const loadAllDataFromFile = (filePath: string) => {
             storageFarm[i] = new WorkArea(0,0,0,0,0);
             Object.assign(storageFarm[i]!!, data.storageFarms[i]);
         }
+        if (storageFarm.length == 2) storageFarm.push(storageFarm3);
     }
     if (data.workingFarm) {
         Object.assign(workingFarm, data.workingFarm);
