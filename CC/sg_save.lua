@@ -1,6 +1,3 @@
--- THIS FILE IS CORRUPTED!!
--- DO NOT USE AND IT MAY FIXED WHEN I NEED TO USE IT AGAIN
-
 function main()
   local drive = peripheral.find("drive")
 
@@ -33,3 +30,17 @@ function main()
   local prompt = ""
   while prompt ~= "y" and prompt ~= "n" do
     print("Dial stargate to there? [y/n]")
+    prompt = io.read()
+  end
+  if prompt ~= "y" then
+    return
+  end
+
+  local interface = peripheral.find("crystal_interface")
+  for v in string.gmatch(data[2], "\-(%d+)") do
+    interface.engageSymbol(tonumber(v))
+  end
+  interface.engageSymbol(0)
+end
+
+main()
