@@ -29,7 +29,7 @@ function main()
   local addr = io.read()
 
   local f = io.open("/disk/sgctrl", "w")
-  f.write(name, addr)
+  f:write(name, "\n", addr)
   local data = {}
 
   local prompt = ""
