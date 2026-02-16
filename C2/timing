@@ -1,0 +1,346 @@
+
+[1764955852029]  { status: true }
+[1764955852030]  { cmd: 'getEnergy', args: [] }
+[1764955852131]  { maxEnergy: 20500, energy: 20499.67375, status: true }
+[1764955852132]  { cmd: 'moveTo', args: [ 64, 138, 16 ] }
+[1764955852748]  { status: true }
+[1764955852749]  { cmd: 'moveTo', args: [ 64, 137, 16 ] }
+[1764955855728]  { status: true }
+[1764955855729]  { cmd: 'getEnergy', args: [] }
+[1764955855830]  { status: true, maxEnergy: 20500, energy: 20176.7225 }
+20176.7225 20500
+[1764955856831]  { cmd: 'getEnergy', args: [] }
+[1764955856933]  { status: true, maxEnergy: 20500, energy: 20499.95625 }
+[1764955856933]  { cmd: 'moveTo', args: [ 64, 137, 17 ] }
+[1764955857927]  { status: true }
+[1764955857928]  { cmd: 'moveTo', args: [ 64, 137, 16 ] }
+[1764955857929]  { cmd: 'moveTo', args: [ 75, 137, 31 ] }
+[1764955858533]  { status: true }
+[1764955858533]  { cmd: 'getEnergy', args: [] }
+[1764955858648]  { status: true, maxEnergy: 20500, energy: 20500 }
+20500 20500
+[1764955858649]  { cmd: 'move', args: [ 1 ] }
+[1764955859127]  { status: true }
+[1764955859128]  { cmd: 'move', args: [ 3 ] }
+[1764955859631]  { status: true }
+[1764955859631]  { cmd: 'turnLeft', args: [] }
+[1764955860130]  { status: true }
+[1764955860131]  { cmd: 'move', args: [ 3 ] }
+[1764955860632]  { status: true }
+[1764955860633]  { cmd: 'move', args: [ 3 ] }
+[1764955861150]  { status: true }
+[1764955861152]  { cmd: 'moveTo', args: [ 65, 137, 8 ] }
+[1764955865330]  { status: true }
+[1764955865332]  { cmd: 'checkCrop', args: [] }
+[1764955865480]  {
+  data: {
+    'crop:fertilizer': 0,
+    name: 'IC2:blockCrop',
+    'crop:size': 3,
+    'crop:air': 8,
+    'crop:resistance': 2,
+    metadata: 0,
+    'crop:nutrients': 3,
+    'crop:growth': 3,
+    harvestLevel: -1,
+    'crop:gain': 0,
+    'crop:hydration': 0,
+    'crop:name': 'reed',
+    'crop:humidity': 2,
+    'crop:weedex': 0,
+    'crop:roots': 1,
+    'crop:tier': 2,
+    color: 31744,
+    hardness: 0.80000001192093,
+    'crop:maxSize': 3
+  },
+  status: true
+}
+[1764955865486]  { cmd: 'moveTo', args: [ 65, 137, 9 ] }
+[1764955866295]  { status: true }
+[1764955866296]  { cmd: 'checkCrop', args: [] }
+[1764955866380]  {
+  data: {
+    'crop:fertilizer': 0,
+    name: 'IC2:blockCrop',
+    'crop:size': 1,
+    'crop:air': 7,
+    'crop:resistance': 1,
+    metadata: 0,
+    'crop:nutrients': 3,
+    'crop:growth': 2,
+    harvestLevel: -1,
+    'crop:gain': 1,
+    'crop:hydration': 0,
+    'crop:name': 'reed',
+    'crop:humidity': 2,
+    'crop:weedex': 0,
+    'crop:roots': 1,
+    'crop:tier': 2,
+    color: 31744,
+    hardness: 0.80000001192093,
+    'crop:maxSize': 3
+  },
+  status: true
+}
+[1764955866381]  { cmd: 'getPosition', args: [] }
+[1764955866493]  { status: true, z: 9, y: 137, x: 65 }
+[1764955866494]  { cmd: 'chooseSlot', args: [ 1 ] }
+[1764955866495]  { cmd: 'chooseSlot', args: [ 16 ] }
+[1764955866636]  { status: true, old: 16 }
+[1764955866826]  { status: true }
+[1764955866827]  { cmd: 'getPosition', args: [] }
+[1764955867248]  { y: 138.49999999974, z: 17.750586019984, x: 65.49572364582 }
+[1764955867248]  { cmd: 'moveTo', args: [ 65.49572364582, 138.5, 17.750586019984 ] }
+[1764955867678]  { status: true }
+[1764955867678]  { cmd: 'moveTo', args: [ 65.5, 138.5, 9.5 ] }
+[1764955868528]  { status: true }
+[1764955868529]  { cmd: 'checkCrop', args: [] }
+[1764955868679]  {
+  data: {
+    'crop:gain': 2,
+    'crop:humidity': 2,
+    'crop:size': 3,
+    'crop:nutrients': 3,
+    'crop:hydration': 0,
+    'crop:tier': 2,
+    'crop:maxSize': 3,
+    hardness: 0.80000001192093,
+    'crop:name': 'reed',
+    'crop:resistance': 2,
+    'crop:growth': 3,
+    color: 31744,
+    'crop:fertilizer': 0,
+    name: 'IC2:blockCrop',
+    harvestLevel: -1,
+    'crop:weedex': 0,
+    'crop:roots': 1,
+    metadata: 0,
+    'crop:air': 8
+  },
+  status: true
+}
+[1764955868679]  { cmd: 'moveTo', args: [ 76, 137, 18 ] }
+[1764955869228]  { status: true }
+[1764955869228]  { cmd: 'moveTo', args: [ 65.5, 138.5, 9.5 ] }
+[1764955869735]  { status: true }
+[1764955869735]  { cmd: 'put', args: [ 20, 1 ] }
+[1764955870525]  { status: true }
+[1764955870525]  { cmd: 'swap', args: [] }
+[1764955870689]  { status: true }
+[1764955870689]  { cmd: 'detect', args: [ 0 ] }
+[1764955870830]  { name: 'solid', status: true, canNotMove: true }
+[1764955870830]  { cmd: 'use', args: [ 0, true ] }
+[1764955871337]  { status: true, reason: 'item_placed' }
+[1764955871337]  { cmd: 'swap', args: [] }
+[1764955871486]  { status: true }
+[1764955871486]  { cmd: 'get', args: [ 20, 1 ] }
+[1764955871486]  { cmd: 'redstone', args: [ 0, 15 ] }
+[1764955871780]  { old: 0, status: true }
+[1764955872279]  { status: 1 }
+[1764955872280]  { cmd: 'redstone', args: [ 0, 0 ] }
+[1764955872280]  { cmd: 'getPosition', args: [] }
+[1764955872280]  { cmd: 'count', args: [ 13 ] }
+[1764955872395]  { status: true, count: 8 }
+[1764955872395]  { cmd: 'chooseSlot', args: [ 13 ] }
+[1764955872531]  { status: true, old: 13 }
+[1764955872531]  { cmd: 'swap', args: [] }
+[1764955872578]  { old: 15, status: true }
+[1764955872638]  { y: 138.5, z: 9.2532654025282, x: 65.50000691986 }
+[1764955872638]  { cmd: 'moveTo', args: [ 65.50000691986, 138.5, 9.2532654025282 ] }
+[1764955872681]  { status: true }
+[1764955872682]  { cmd: 'place', args: [] }
+[1764955873129]  { status: true }
+[1764955873130]  { cmd: 'moveTo', args: [ 65.5, 138.5, 17.5 ] }
+[1764955873184]  { status: true, reason: 'item_placed' }
+[1764955873184]  { cmd: 'use', args: [ 0, 0 ] }
+[1764955873694]  { status: true, reason: 'block_activated' }
+[1764955873695]  { cmd: 'swap', args: [] }
+[1764955873830]  { status: true }
+[1764955873831]  { cmd: 'checkCrop', args: [] }
+[1764955873981]  {
+  data: {
+    hardness: 0.80000001192093,
+    metadata: 0,
+    harvestLevel: -1,
+    name: 'IC2:blockCrop',
+    color: 31744
+  },
+  status: true
+}
+[1764955873981]  { cmd: 'moveTo', args: [ 65, 137, 10 ] }
+[1764955874578]  { status: true }
+[1764955874579]  { cmd: 'checkCrop', args: [] }
+[1764955874726]  { status: true }
+[1764955874726]  { cmd: 'moveTo', args: [ 65.5, 138.5, 17.5 ] }
+[1764955874726]  {
+  data: {
+    'crop:fertilizer': 0,
+    name: 'IC2:blockCrop',
+    'crop:size': 3,
+    'crop:air': 7,
+    'crop:resistance': 2,
+    metadata: 0,
+    'crop:nutrients': 3,
+    'crop:growth': 3,
+    harvestLevel: -1,
+    'crop:gain': 0,
+    'crop:hydration': 0,
+    'crop:name': 'reed',
+    'crop:humidity': 2,
+    'crop:weedex': 0,
+    'crop:roots': 1,
+    'crop:tier': 2,
+    color: 31744,
+    hardness: 0.80000001192093,
+    'crop:maxSize': 3
+  },
+  status: true
+}
+[1764955874727]  { cmd: 'moveTo', args: [ 65, 137, 11 ] }
+[1764955874877]  { status: true }
+[1764955874877]  { cmd: 'checkCrop', args: [] }
+[1764955875025]  {
+  data: {
+    harvestLevel: -1,
+    color: 0,
+    metadata: 0,
+    hardness: 0,
+    name: 'minecraft:air'
+  },
+  status: true
+}
+[1764955875026]  { cmd: 'moveTo', args: [ 76, 137, 18 ] }
+[1764955875225]  { status: true }
+[1764955875226]  { cmd: 'checkCrop', args: [] }
+[1764955875226]  { status: true }
+[1764955875227]  { cmd: 'put', args: [ 20, 1 ] }
+[1764955875341]  { status: true }
+[1764955875342]  { cmd: 'checkCrop', args: [] }
+[1764955875386]  {
+  data: {
+    harvestLevel: -1,
+    color: 0,
+    metadata: 0,
+    hardness: 0,
+    name: 'minecraft:air'
+  },
+  status: true
+}
+[1764955875387]  { cmd: 'moveTo', args: [ 76, 137, 18 ] }
+[1764955875477]  {
+  data: {
+    'crop:fertilizer': 0,
+    name: 'IC2:blockCrop',
+    'crop:size': 3,
+    'crop:air': 7,
+    'crop:resistance': 0,
+    metadata: 0,
+    'crop:nutrients': 3,
+    'crop:growth': 3,
+    harvestLevel: -1,
+    'crop:gain': 2,
+    'crop:hydration': 0,
+    'crop:name': 'reed',
+    'crop:humidity': 2,
+    'crop:weedex': 0,
+    'crop:roots': 1,
+    'crop:tier': 2,
+    color: 31744,
+    hardness: 0.80000001192093,
+    'crop:maxSize': 3
+  },
+  status: true
+}
+[1764955875576]  { status: true }
+[1764955875576]  { cmd: 'checkCrop', args: [] }
+[1764955875727]  {
+  data: {
+    harvestLevel: -1,
+    color: 0,
+    metadata: 0,
+    hardness: 0,
+    name: 'minecraft:air'
+  },
+  status: true
+}
+[1764955876028]  { status: true }
+[1764955876028]  { cmd: 'chooseSlot', args: [ 16 ] }
+[1764955876195]  { old: 16, status: true }
+[1764955876195]  { cmd: 'swap', args: [] }
+[1764955876330]  { status: true }
+[1764955876331]  { cmd: 'use', args: [ 0, true ] }
+[1764955876828]  { reason: 'item_placed', status: true }
+[1764955876828]  { cmd: 'swap', args: [] }
+[1764955876981]  { status: true }
+[1764955876981]  { cmd: 'get', args: [ 20, 1 ] }
+[1764955877776]  { status: 1 }
+[1764955877776]  { cmd: 'getPosition', args: [] }
+[1764955877926]  { y: 137, z: 18, status: true, x: 76 }
+[1764955877926]  { cmd: 'chooseSlot', args: [ 1 ] }
+[1764955877928]  { cmd: 'chooseSlot', args: [ 16 ] }
+[1764955878077]  { old: 16, status: true }
+[1764955878275]  { status: true }
+[1764955878275]  { cmd: 'getPosition', args: [] }
+[1764955878631]  { y: 138.5, z: 17.751390143936, x: 65.500000000829 }
+[1764955878631]  { cmd: 'moveTo', args: [ 65.500000000829, 138.5, 17.751390143936 ] }
+[1764955879127]  { status: true }
+[1764955879128]  { cmd: 'moveTo', args: [ 76.5, 138.5, 18.5 ] }
+[1764955881128]  { status: true }
+[1764955881129]  { cmd: 'moveTo', args: [ 76.5, 138.5, 18.5 ] }
+[1764955881630]  { status: true }
+[1764955881630]  { cmd: 'put', args: [ 20, 1 ] }
+[1764955882440]  { status: true }
+[1764955882440]  { cmd: 'swap', args: [] }
+[1764955882577]  { status: true }
+[1764955882578]  { cmd: 'detect', args: [ 0 ] }
+[1764955882724]  { canNotMove: false, status: true, name: 'air' }
+[1764955882724]  { cmd: 'use', args: [ 0, false ] }
+[1764955883236]  { reason: 'item_placed', status: true }
+[1764955883237]  { cmd: 'swap', args: [] }
+[1764955883425]  { status: true }
+[1764955883426]  { cmd: 'get', args: [ 20, 1 ] }
+[1764955883426]  { cmd: 'redstone', args: [ 0, 15 ] }
+[1764955883725]  { old: 0, status: true }
+[1764955884178]  { status: 1 }
+[1764955884179]  { cmd: 'redstone', args: [ 0, 0 ] }
+[1764955884179]  { cmd: 'getPosition', args: [] }
+[1764955884481]  { old: 15, status: true }
+[1764955884533]  { y: 138.5, z: 18.501237811401, x: 76.504699461008 }
+[1764955884533]  { cmd: 'moveTo', args: [ 76.504699461008, 138.5, 18.501237811401 ] }
+[1764955885034]  { status: true }
+[1764955885034]  { cmd: 'moveTo', args: [ 65.5, 138.5, 17.5 ] }
+[1764955887007]  { status: true }
+[1764955887008]  { cmd: 'moveTo', args: [ 65.5, 138.5, 17.5 ] }
+[1764955887478]  { status: true }
+[1764955887478]  { cmd: 'put', args: [ 20, 1 ] }
+[1764955888357]  { status: true }
+[1764955888360]  { cmd: 'chooseSlot', args: [ 16 ] }
+[1764955888489]  { old: 16, status: true }
+[1764955888489]  { cmd: 'swap', args: [] }
+[1764955888605]  { status: true }
+[1764955888605]  { cmd: 'use', args: [ 0, true ] }
+[1764955889090]  { reason: 'item_placed', status: true }
+[1764955889090]  { cmd: 'swap', args: [] }
+[1764955889229]  { status: true }
+[1764955889230]  { cmd: 'get', args: [ 20, 1 ] }
+[1764955890035]  { status: 1 }
+[1764955890036]  { cmd: 'getPosition', args: [] }
+[1764955890442]  { y: 138.5, z: 17.499952395299, x: 65.245115664055 }
+[1764955890442]  { cmd: 'moveTo', args: [ 65.245115664055, 138.5, 17.499952395299 ] }
+[1764955890892]  { status: true }
+[1764955890894]  { cmd: 'moveTo', args: [ 64, 138.5, 18 ] }
+[1764955891580]  { status: true }
+[1764955891580]  { cmd: 'moveTo', args: [ 64, 136.5, 18 ] }
+[1764955892383]  { status: true }
+[1764955892384]  { cmd: 'getPosition', args: [] }
+[1764955892532]  { status: true, z: 11, y: 137, x: 65 }
+[1764955892532]  { cmd: 'chooseSlot', args: [ 1 ] }
+[1764955892532]  { cmd: 'chooseSlot', args: [ 16 ] }
+[1764955892689]  { status: true, old: 16 }
+[1764955892882]  { status: true }
+[1764955892882]  { cmd: 'getPosition', args: [] }
+[1764955893229]  { y: 136.5029738836, z: 17.996567169717, x: 63.753011747105 }
+[1764955893230]  { cmd: 'moveTo', args: [ 63.753011747105, 138.5, 17.996567169717 ] }
+[1764955894092]  { status: false }
+[1764955894092]  { cmd: 'moveTo', args: [ 65.5, 138.5, 11.5 ] }
