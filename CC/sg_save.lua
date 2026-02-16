@@ -30,7 +30,7 @@ function main()
 
   local f = io.open("/disk/sgctrl", "w")
   f:write(name, "\n", addr)
-  local data = {}
+  drive.setDiskLabel(name)
 
   local prompt = ""
   while prompt ~= "y" and prompt ~= "n" do
