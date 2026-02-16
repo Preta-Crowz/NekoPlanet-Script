@@ -36,7 +36,7 @@ function main()
     return
   end
 
-  local interface = peripheral.find("advanced_crystal_interface") or peripheral.find("crystal_interface") or peripheral.find("basic_interface")
+  local interface = peripheral.find("advanced_crystal_interface") or peripheral.find("crystal_interface")
   if interface == nil then
     print("Interface not found")
     return
