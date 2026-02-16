@@ -13,19 +13,24 @@ function main()
 
   local f = io.open("/disk/sgctrl", "rb")
   if f then f:close() end
-  if f == nil then
-    print("Invalid disk")
-    return
+  if f ~= nil then
+    while prompt ~= "y" and prompt ~= "n" do
+      print("Current disk has data inside, override? [y/n]")
+      prompt = io.read()
+    end
+    if prompt ~= "y" then
+      return
+    end
   end
 
-  local index = 1
+  print("Input gate name: ")
+  local name = io.read()
+  print("Input gate address: ")
+  local addr = io.read()
+
+  local f = io.open("/disk/sgctrl", "w")
+  f.write(name, addr)
   local data = {}
-  for line in io.lines("/disk/sgctrl") do
-    data[index] = line
-    index = index + 1
-  end
-  print("Found address data for "..data[1])
-  print("Address: "..data[2])
 
   local prompt = ""
   while prompt ~= "y" and prompt ~= "n" do
@@ -41,7 +46,7 @@ function main()
     print("Interface not found")
     return
   end
-  for v in string.gmatch(data[2], "\-(%d+)") do
+  for v in string.gmatch(addr, "\-(%d+)") do
     interface.engageSymbol(tonumber(v))
   end
   interface.engageSymbol(0)
