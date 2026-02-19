@@ -24,12 +24,14 @@ end
 local next = charged
 
 local function loop()
-  local count = getReactorCount(next)
-  if count <= 64 then
-    drawer.pushItems(peripheral.getName(reactor), findIndex(next), 256 - count)
+  while true do
+    local count = getReactorCount(next)
+    if count <= 64 then
+      drawer.pushItems(peripheral.getName(reactor), findIndex(next), 256 - count)
+    end
+    if next == charged then next = dust else next = charged end
+    os.sleep(0.05)
   end
-  if next == charged then next = dust else next = charged end
-  os.sleep(0.05)
 end
 
 parallel.waitForAll(loop)
