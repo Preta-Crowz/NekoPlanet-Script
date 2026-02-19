@@ -2,7 +2,7 @@ local drawer = peripheral.find("functionalstorage:storage_controller")
 local reactor = peripheral.find("advanced_ae:reaction_chamber")
 
 local charged = "ae2:charged_certus_quartz_crystal"
-locat dust = "ae2:certus_quartz_dust"
+local dust = "ae2:certus_quartz_dust"
 
 local function findIndex(id)
   for k, v in pairs(drawer.list()) do
