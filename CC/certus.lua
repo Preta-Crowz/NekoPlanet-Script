@@ -26,7 +26,7 @@ local next = charged
 local function loop()
   while true do
     local count = getReactorCount(next)
-    if count <= 64 then
+    if count <= 64 and findIndex(next) ~= -1 then
       drawer.pushItems(peripheral.getName(reactor), findIndex(next), 256 - count)
     end
     if next == charged then next = dust else next = charged end
