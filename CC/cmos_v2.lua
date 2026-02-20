@@ -7,7 +7,7 @@ local AE = peripheral.find("meBridge")
 local Players = peripheral.find("playerDetector")
 local Storage = peripheral.find("inventory")
 
-local Team = {"Arfil","NeoForge"}
+local Team = {"Arfil","NeoForge","Blood_Crystal","Mizuki_Soru"}
 
 local Colors = {
   blue = "#AEEAFF",
