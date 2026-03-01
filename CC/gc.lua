@@ -66,7 +66,7 @@ local function loop()
       if not found then phase = -1 end
     end
     if count > 0 then count = count - 1 end
-    if phase ~= -1 then displayCounter() end
+    displayCounter()
     os.sleep(0.05)
   end
 end
