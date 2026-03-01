@@ -10,7 +10,7 @@ local phase = -1
 local count = 0
 local difficulty = 0
 
-local adjustConstant = 20
+local adjustConstant = 40
 
 local function getDifficulty(mhp)
   local multipler = (1-(mhp/300))*4
@@ -26,7 +26,7 @@ local function updatePhase(e)
   end
   if phase == 1 and (e.health / e.maxHealth) <= 0.2 then
     phase = 2
-    count = 900 - adjustConstant
+    count = 450 - adjustConstant
   end
 end
 
