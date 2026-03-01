@@ -10,8 +10,7 @@ local phase = -1
 local count = 0
 local difficulty = 0
 
-local adjustConstant = 10
-local lastTick = os.epoch("local")
+local adjustConstant = 20
 
 local function getDifficulty(mhp)
   local multipler = (1-(mhp/300))*4
@@ -75,11 +74,7 @@ local function loop()
       end
       if not found then phase = -1 end
     end
-    local tick = os.epoch("local")
-    local tps = 1000 / (tick - lastTick)
-    lastTick = tick
-    if tps > 20 then tps = 20 end
-    if count > 0 then count = count - (20 / tps) end
+    if count > 0 then count = count - 1 end
     displayCounter()
     os.sleep(0.05)
   end
