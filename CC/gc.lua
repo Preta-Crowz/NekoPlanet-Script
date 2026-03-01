@@ -47,7 +47,7 @@ end
 local function displayCounter()
   for _, v in pairs(monitor) do
     v.clear()
-    v.setTextScale(4)
+    v.setCursorPos(1,3)
     v.write(getDisplayText())
   end
 end
@@ -69,6 +69,10 @@ local function loop()
     displayCounter()
     os.sleep(0.05)
   end
+end
+
+for _, v in pairs(monitor) do
+  v.setTextScale(3)
 end
 
 parallel.waitForAll(loop)
