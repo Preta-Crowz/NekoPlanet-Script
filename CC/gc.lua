@@ -1,11 +1,16 @@
 -- Gaia Counter
 
+local version = "1.0"
+
 local detector = peripheral.find("environmentDetector")
 local speaker = peripheral.find("speaker")
 local monitor = { peripheral.find("monitor") }
 
 local phase = -1
 local count = 0
+local difficulty = 0
+
+local adjustConstant = 10
 
 local function getDifficulty(mhp)
   local multipler = (1-(mhp/300))*4
@@ -16,39 +21,43 @@ end
 local function updatePhase(e)
   if phase == -1 then
     phase = 0
-    count = 120
+    count = 120 - adjustConstant
+    difficulty = getDifficulty(e.maxHealth)
   end
   if phase == 1 and (e.health / e.maxHealth) <= 0.2 then
     phase = 2
-    count = 900
+    count = 900 - adjustConstant
   end
 end
 
 local function getDisplayText()
   if phase == -1 then
-    return "Ready to fight!"
+    return {"Ready to fight!", "Running GC v"..version}
   end
   if phase == 0 then
-    if count > 0 then return "Spawning in "..count end
+    if count > 0 then return {"Spawning Guardian..", "Remain: "..count} end
     phase = 1
   end
   if phase == 1 then
-    return "Good luck!!"
+    return {"Good luck!!", "Difficulty: "..difficulty}
   end
   if phase == 2 then
-    if count > 0 then return "Spawning mobs!!\nRemain: "..count end
+    if count > 0 then return {"Spawning mobs!!", "Remain: "..count} end
     phase = 3
   end
   if phase == 3 then
-    return "Almost done!!"
+    return {"Done spawning!","Almost done!!"}
   end
 end
 
 local function displayCounter()
+  local text = { getDisplayText() }
   for _, v in pairs(monitor) do
     v.clear()
     v.setCursorPos(1,3)
-    v.write(getDisplayText())
+    v.write(text[1])
+    v.setCursorPos(1,4)
+    v.write(text[2])
   end
 end
 
