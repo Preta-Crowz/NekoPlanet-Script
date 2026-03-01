@@ -11,6 +11,7 @@ local count = 0
 local difficulty = 0
 
 local adjustConstant = 10
+local avgTps = 8.8
 
 local function getDifficulty(mhp)
   local multipler = (1-(mhp/300))*4
@@ -74,7 +75,7 @@ local function loop()
       end
       if not found then phase = -1 end
     end
-    if count > 0 then count = count - 1 end
+    if count > 0 then count = count - (20 / avgTps) end
     displayCounter()
     os.sleep(0.05)
   end
