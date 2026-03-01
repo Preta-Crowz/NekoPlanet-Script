@@ -51,7 +51,7 @@ local function getDisplayText()
 end
 
 local function displayCounter()
-  local text = { getDisplayText() }
+  local text = getDisplayText()
   for _, v in pairs(monitor) do
     v.clear()
     v.setCursorPos(1,3)
