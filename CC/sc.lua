@@ -24,7 +24,7 @@ local function work(inv)
     index = index + 1
     if index > 19 then index = 0 end
     if inv["item"..index].id ~= nil then
-      local curr = inv["item"..index].id
+      local curr = inv["item"..index]
       local namespace, id = split(curr.id, ":")
       if namespace == "ae2additions" then
         local base, type, size = split(id, "_")
