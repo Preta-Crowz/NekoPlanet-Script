@@ -21,6 +21,16 @@ local function getLimit(type, sizeText)
   return tonumber(size) * 1024 * mult
 end
 
+local function display(size, type, limit, count)
+  v.clear()
+  v.setCursorPos(1,2)
+  v.write(size.." "..type.." Disk")
+  v.setCursorPos(1,3)
+  v.write(count.." /")
+  v.setCursorPos(1,4)
+  v.write(limit)
+end
+
 local function work(inv)
   while index do
     index = index + 1
@@ -40,16 +50,6 @@ local function work(inv)
     end
     if prevIndex == -1 and index == 19 then error("Disk not found!!") end
   end
-end
-
-local function display(size, type, limit, count)
-  v.clear()
-  v.setCursorPos(1,2)
-  v.write(size.." "..type.." Disk")
-  v.setCursorPos(1,3)
-  v.write(count.." /")
-  v.setCursorPos(1,4)
-  v.write(limit)
 end
 
 local function loop()
