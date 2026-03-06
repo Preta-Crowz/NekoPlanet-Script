@@ -45,7 +45,7 @@ local function work(inv)
         if base == "disk" then
           local limit = getLimit(type, size)
           local count = curr.tag.ic
-          if count == nil return count
+          if count == nil then count = 0 end
           display(size, type, limit, count)
           prevIndex = index
           return
