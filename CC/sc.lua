@@ -24,12 +24,12 @@ end
 local function display(size, type, limit, count)
   for _, v in pairs(monitor) do
     v.clear()
-    v.setCursorPos(1,2)
+    v.setCursorPos(2,2)
     v.write(size.." "..type)
-    v.setCursorPos(1,4)
-    v.write(count)
-    v.setCursorPos(1,5)
-    v.write("    /"..limit)
+    v.setCursorPos(2,4)
+    v.write(count.."  /")
+    v.setCursorPos(2,5)
+    v.write(limit)
   end
 end
 
