@@ -9,7 +9,9 @@ local index = -1
 local prevIndex = -1
 
 local function split(s, sep)
-  return string.gmatch(s, "[^"..sep.."]+")
+  local r = {}
+  for p in (string.gmatch(s, "[^"..sep.."]+")) do table.insert(r, p) end
+  return unpack(r)
 end
 
 local function getLimit(type, size)
