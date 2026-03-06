@@ -1,0 +1,67 @@
+-- Storage Checker
+
+local version = "1.0"
+
+local reader = peripheral.find("blockReader")
+local monitor = { peripheral.find("monitor") }
+
+local index = -1
+local prevIndex = -1
+
+local function split(s, sep)
+  return string.gmatch(s, "[^"..sep.."]+")
+end
+
+local getLimit(type, size)
+  local mult = 8000
+  if type == "item" or type == drive then mult = 8 end
+  string.match(size, "%d+")
+  return tonumber(size) * mult
+end
+
+local work(inv)
+  while index do
+    index = index + 1
+    if index > 19 then index = 0 end
+    if inv["item"..index].id ~= nil then
+      local curr = inv["item"..index].id
+      local namespace, id = split(curr.id, ":")
+      if namespace == "ae2additions" then
+        local base, type, size = split(id, "_")
+        if base == "disk" then
+          local limit = getLimit(type, size)
+          display(size, type, limit, curr.tag.ic)
+          prevIndex = index
+          return
+        end
+      end
+    end
+    if prevIndex == -1 and index == 19 then error("Disk not found!!") end
+  end
+end
+
+local function display(size, type, limit, count)
+  v.clear()
+  v.setCursorPos(1,2)
+  v.write(size.." "..type.." Disk")
+  v.setCursorPos(1,3)
+  v.write(count.." /")
+  v.setCursorPos(1,4)
+  v.write(limit)
+end
+
+local function loop()
+  while true do
+    local inv = reader.getBlockData().inv
+    if inv ~= nil then
+      work(inv)
+    end
+    os.sleep(0.05)
+  end
+end
+
+for _, v in pairs(monitor) do
+  v.setTextScale(3)
+end
+
+parallel.waitForAll(loop)
