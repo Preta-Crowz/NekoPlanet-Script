@@ -22,13 +22,15 @@ local function getLimit(type, sizeText)
 end
 
 local function display(size, type, limit, count)
-  v.clear()
-  v.setCursorPos(1,2)
-  v.write(size.." "..type.." Disk")
-  v.setCursorPos(1,3)
-  v.write(count.." /")
-  v.setCursorPos(1,4)
-  v.write(limit)
+  for _, v in pairs(monitor) do
+    v.clear()
+    v.setCursorPos(1,2)
+    v.write(size.." "..type.." Disk")
+    v.setCursorPos(1,3)
+    v.write(count.." /")
+    v.setCursorPos(1,4)
+    v.write(limit)
+  end
 end
 
 local function work(inv)
@@ -42,7 +44,9 @@ local function work(inv)
         local base, type, size = split(id, "_")
         if base == "disk" then
           local limit = getLimit(type, size)
-          display(size, type, limit, curr.tag.ic)
+          local count = curr.tag.ic
+          if count == nil return count
+          display(size, type, limit, count)
           prevIndex = index
           return
         end
@@ -58,7 +62,7 @@ local function loop()
     if inv ~= nil then
       work(inv)
     end
-    os.sleep(0.05)
+    os.sleep(3)
   end
 end
 
