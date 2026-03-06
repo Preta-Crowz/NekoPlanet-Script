@@ -12,14 +12,14 @@ local function split(s, sep)
   return string.gmatch(s, "[^"..sep.."]+")
 end
 
-local getLimit(type, size)
+local function getLimit(type, size)
   local mult = 8000
   if type == "item" or type == drive then mult = 8 end
   string.match(size, "%d+")
   return tonumber(size) * mult
 end
 
-local work(inv)
+local function work(inv)
   while index do
     index = index + 1
     if index > 19 then index = 0 end
