@@ -14,11 +14,11 @@ local function split(s, sep)
   return unpack(r)
 end
 
-local function getLimit(type, size)
+local function getLimit(type, sizeText)
   local mult = 8000
   if type == "item" or type == drive then mult = 8 end
-  string.match(size, "%d+")
-  return tonumber(size) * mult
+  local size = string.match(sizeText, "%d+")
+  return tonumber(size) * 1024 * mult
 end
 
 local function work(inv)
