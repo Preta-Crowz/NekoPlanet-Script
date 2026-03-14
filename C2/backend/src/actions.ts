@@ -165,7 +165,7 @@ const translocate = async (from: Robot): Promise<() => Promise<void>> => {
     const cleanup = async () => {
         await Promise.all([
             translocator?.sendCommandWithRetry("redstone", 0, 0),
-            droneMove(transPos.x, transPos.y, transPos.z)
+            droneMove(transPos.x, transPos.y, transPos.z-0.1)
         ]);
         await drone?.sendCommandWithRetry("put", 20, 1);
         await translocator?.useTool(16);

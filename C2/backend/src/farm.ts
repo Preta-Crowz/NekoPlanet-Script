@@ -226,7 +226,7 @@ const strategyTier: DecisionFunction = async (x: number, z: number, double: bool
                 minTier = t;
                 minTierPos = {x: pos.x, z: pos.z};
             };
-        } else if (b.data?.name == "minecraft:air" && b.canPlant) {
+        } else if ((b.data?.name == "minecraft:air" && b.canPlant) ) {
             // empty spot found, prefer this.
             minTier = -1;
             minTierPos = {x: pos.x, z: pos.z};
@@ -367,7 +367,7 @@ const strategyStat = (cropName: string): DecisionFunction => {
                     minStatPos = {x: pos.x, z: pos.z};
                     break; 
                 }
-            } else if (b.data?.name == "minecraft:air" && b.canPlant) {
+            } else if ((b.data?.name == "minecraft:air" && b.canPlant) || (isCrop(b.data!!) && isNotPlanted(b.data!!))) {
                 // empty spot found, prefer this.
                 minStat = -1;
                 minStatPos = {x: pos.x, z: pos.z};
@@ -375,16 +375,20 @@ const strategyStat = (cropName: string): DecisionFunction => {
             }
         }
 
-        if (stat < minStat || crop["crop:resistance"] > 2) {
+        if (stat <= minStat || crop["crop:resistance"] > 2) {
+            if (crop["crop:resistance"] <= 2) {
+                if (crop["crop:growth"] >= 21 && crop["crop:gain"] >= 30) {
+                    if (!drone.hasLock()) await moveToStorage(block);
+                    return;
+                }
+            }
+
             await attackAndTakeCareOfInventory(worker);
             await doubleCropAndStoreData(block);
             return;
         }
 
-        if (crop["crop:growth"] > 21) {
-            if (!drone.hasLock()) await moveToStorage(block);
-            return;
-        }
+
         // transplant.
         if (!drone.hasLock()) {
             await workingFarmMove(worker, minStatPos.x, workingFarm.y, minStatPos.z, block);
@@ -477,6 +481,7 @@ export const moveCropToWork = async (cropName: string, countNeeded: number) => {
 
 export const farmLogic = async () => {
     loadAllDataFromFile("farmdata.json");
+    saveAllDataToFile("farmdata.json");
 
     // clear storage farm data.
     // for (const pos of storageFarm.getIteratorOfBlockPositions()) {

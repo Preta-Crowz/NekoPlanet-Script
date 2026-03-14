@@ -2,26 +2,33 @@
     export let farms;
 
     let crops = [];
-    for (const cropList of farms) {
-        for (const tile of cropList.crops) {
-            if (tile.data["crop:name"] !== undefined) {
-                crops.push(tile);
+    $: {
+        crops = []
+        let j = 0;
+        for (const cropList of farms) {
+            let i = 0;
+            for (const tile of cropList.crops) {
+                if (tile.data["crop:name"] !== undefined) {
+                    crops.push({...tile, idx: i++, farmIdx: j});
+                }
             }
+            j++;
         }
+
+        crops.sort((a, b) => {
+            if (a.data["crop:tier"] < b.data["crop:tier"]) return 1;
+            if (a.data["crop:tier"] > b.data["crop:tier"]) return -1;
+            if (a.data["crop:name"] < b.data["crop:name"]) return -1;
+            if (a.data["crop:name"] > b.data["crop:name"]) return 1;
+            let growthFactorA = a.data["crop:growth"] + a.data["crop:gain"] - a.data["crop:resistance"];
+            let growthFactorB = b.data["crop:growth"] + b.data["crop:gain"] - b.data["crop:resistance"];
+
+            if (growthFactorA < growthFactorB) return -1;
+            if (growthFactorA > growthFactorB) return 1;
+
+            return 0;
+        });
     }
-    crops.sort((a, b) => {
-        if (a.data["crop:tier"] < b.data["crop:tier"]) return 1;
-        if (a.data["crop:tier"] > b.data["crop:tier"]) return -1;
-        if (a.data["crop:name"] < b.data["crop:name"]) return -1;
-        if (a.data["crop:name"] > b.data["crop:name"]) return 1;
-        let growthFactorA = a.data["crop:growth"] + a.data["crop:gain"] - a.data["crop:resistance"];
-        let growthFactorB = b.data["crop:growth"] + b.data["crop:gain"] - b.data["crop:resistance"];
-
-        if (growthFactorA < growthFactorB) return -1;
-        if (growthFactorA > growthFactorB) return 1;
-
-        return 0;
-    });
 
     let search = "";
 
@@ -39,6 +46,7 @@
                 <span> {crop.data["crop:name"]} </span>
                 <span> Tier {crop.data["crop:tier"]} </span>
                 <span> {crop.data["crop:growth"]} / {crop.data["crop:gain"]} / {crop.data["crop:resistance"]} </span>
+                <span> {crop.farmIdx} / {crop.idx}</span>
             </li>
         {/each}
     </ul>

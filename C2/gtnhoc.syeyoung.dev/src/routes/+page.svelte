@@ -1,19 +1,18 @@
 
 <!-- Write 9x9 grid to show crops with flexb ox-->
 <script>
+    import { onMount } from "svelte";
     import Crop from "$lib/Crop.svelte";
     import StoredCrops from "$lib/StoredCrops.svelte";
     import TileDetails from "$lib/TileDetails.svelte";
 
-    export let data;
 
     let details = undefined;
 
     const SIZE = 9;
     const TOTAL = SIZE * SIZE;
-    let tiles = data.farms.workingFarm.crops;
-    let storedCrops = data.farms.storageFarm;
-    console.log(data.farms.storageFarm[0])
+    let tiles = [];
+    let storedCrops = [];
 
     // refresh tiles, stored Crops every 5 second
     setInterval(() => {
@@ -25,6 +24,14 @@
             });
     }, 5000);
 
+    onMount(() => {
+        fetch('https://gtnhoc.syeyoung.dev/api/farms')
+                .then(res => res.json())
+                .then(farmsData => {
+                    tiles = farmsData.workingFarm.crops;
+                    storedCrops = farmsData.storageFarm;
+                });
+    });
 </script>
 
 <div class="page">
@@ -43,6 +50,8 @@
 
             <p>Min Tier: {Math.min(...tiles.filter((t, i) => (((i % SIZE) + Math.floor(i / SIZE)) % 2) === 0 && t.data["crop:tier"]).map(t => t.data["crop:tier"]))}</p>
             <p>Max Tier: {Math.max(...tiles.filter((t, i) => (((i % SIZE) + Math.floor(i / SIZE)) % 2) === 0 && t.data["crop:tier"]).map(t => t.data["crop:tier"]))}</p>
+            <p>Min Growth+Gain-Resistance: {Math.min(...tiles.filter((t, i) => (((i % SIZE) + Math.floor(i / SIZE)) % 2) === 0 && t.data["crop:tier"]).map(t => t.data["crop:growth"] + t.data["crop:gain"] - t.data["crop:resistance"]))}</p>
+            <p>Max Growth+Gain-Resistance: {Math.max(...tiles.filter((t, i) => (((i % SIZE) + Math.floor(i / SIZE)) % 2) === 0 && t.data["crop:tier"]).map(t => t.data["crop:growth"] + t.data["crop:gain"] - t.data["crop:resistance"]))}</p>
         </div>
         <div class="column">
             <TileDetails {details} />
